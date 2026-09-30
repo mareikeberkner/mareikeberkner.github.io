@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mareike Berkner — Astroparticle Physics</title>
+<meta name="description" content="Mareike Berkner, PhD student at RWTH Aachen, reconstructing the 3D distribution of galactic cosmic-ray sources and density within the MW-Atlas collaboration.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&amp;family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1424;
+    --bg-deep:#080d19;
+    --panel:#131c33;
+    --panel-2:#182543;
+    --ink:#eef0f6;
+    --ink-dim:#a6adc4;
+    --ink-faint:#848da8;   /* lightened from #6c7590: now ≥4.5:1 on every background */
+    --line:rgba(238,240,246,0.10);
+    --line-strong:rgba(238,240,246,0.20);
+    --amber:#e8a852;
+    --amber-dim:#8a6a3a;
+    --teal:#57bfae;
+    --teal-dim:#2f5c53;
+    --max:1080px;
+    --header-h:64px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+  [id]{scroll-margin-top:calc(var(--header-h) + 16px);}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.drawer-open{overflow:hidden;}
+  h1,h2,h3{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:500;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:4px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:12.5px;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    color:var(--amber);
+  }
+  .wrap{
+    max-width:var(--max);
+    margin:0 auto;
+    padding:0 32px;
+  }
+
+  /* ---------- header / desktop nav ---------- */
+  header.site{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(13,20,36,0.86);
+    -webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:var(--header-h);
+  }
+  .brand{
+    font-family:'Fraunces',Georgia,serif;
+    font-size:17px;
+    font-weight:500;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .navlinks{
+    display:flex;
+    gap:24px;
+    align-items:center;
+  }
+  .navlinks a{
+    text-decoration:none;
+    font-size:14px;
+    color:var(--ink-dim);
+    transition:color .15s ease;
+  }
+  .navlinks a:hover,
+  .navlinks a.active{color:var(--ink);}
+  .navlinks .ext{
+    color:var(--ink-dim);
+    border:1px solid var(--line-strong);
+    border-radius:6px;
+    padding:6px 12px;
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:12.5px;
+  }
+  .navlinks .ext:hover{border-color:var(--amber);color:var(--amber);}
+
+  /* ---------- mobile menu button ---------- */
+  .navtoggle{
+    display:none;
+    align-items:center;
+    gap:10px;
+    background:none;
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    color:var(--ink);
+    font:500 13px/1 'Inter',system-ui,sans-serif;
+    padding:9px 12px;
+    cursor:pointer;
+  }
+  .navtoggle:hover{border-color:var(--ink-dim);}
+  .navtoggle .bars{position:relative;width:16px;height:10px;}
+  .navtoggle .bars::before,
+  .navtoggle .bars::after,
+  .navtoggle .bars span{
+    content:"";
+    position:absolute;
+    left:0;right:0;
+    height:1.5px;
+    background:currentColor;
+    border-radius:1px;
+  }
+  .navtoggle .bars::before{top:0;}
+  .navtoggle .bars span{top:4.25px;}
+  .navtoggle .bars::after{bottom:0;}
+
+  /* ---------- mobile sidebar ---------- */
+  .scrim{
+    position:fixed;
+    inset:0;
+    z-index:90;
+    background:rgba(4,7,14,0.6);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .25s ease, visibility 0s linear .25s;
+  }
+  .drawer{
+    position:fixed;
+    top:0;
+    right:0;
+    bottom:0;
+    z-index:100;
+    width:min(320px, 86vw);
+    background:var(--panel);
+    border-left:1px solid var(--line-strong);
+    display:flex;
+    flex-direction:column;
+    transform:translateX(100%);
+    visibility:hidden;
+    transition:transform .28s cubic-bezier(.2,.7,.2,1), visibility 0s linear .28s;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+  body.drawer-open .scrim{opacity:1;visibility:visible;transition:opacity .25s ease;}
+  body.drawer-open .drawer{transform:none;visibility:visible;transition:transform .28s cubic-bezier(.2,.7,.2,1);}
+  @media (prefers-reduced-motion: reduce){
+    .scrim,.drawer,
+    body.drawer-open .scrim,
+    body.drawer-open .drawer{transition:none;}
+  }
+  .drawer-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:var(--header-h);
+    padding:0 20px 0 24px;
+    border-bottom:1px solid var(--line);
+    flex:none;
+  }
+  .drawer-head .brand{font-size:16px;}
+  .drawer-close{
+    width:40px;height:40px;
+    display:grid;place-items:center;
+    background:none;
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    color:var(--ink);
+    cursor:pointer;
+    font-size:20px;
+    line-height:1;
+  }
+  .drawer-close:hover{border-color:var(--ink-dim);}
+  .drawer-nav{
+    display:flex;
+    flex-direction:column;
+    padding:12px 12px;
+  }
+  .drawer-nav a{
+    display:block;
+    padding:12px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:16px;
+    color:var(--ink-dim);
+    border-left:2px solid transparent;
+  }
+  .drawer-nav a:hover{background:var(--panel-2);color:var(--ink);}
+  .drawer-nav a.active{color:var(--ink);border-left-color:var(--amber);background:var(--panel-2);}
+  .drawer-foot{
+    margin-top:auto;
+    padding:20px 24px 28px;
+    border-top:1px solid var(--line);
+  }
+  .drawer-foot .footer-links a{padding:7px 12px;font-size:13px;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:96px 0 88px;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-grid{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    opacity:0.55;
+    pointer-events:none;
+  }
+  .hero-inner{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:1.35fr 0.9fr;
+    gap:56px;
+    align-items:center;
+  }
+  .hero h1{
+    font-size:46px;
+    line-height:1.12;
+    margin:18px 0 22px;
+    text-wrap:balance;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--amber);
+  }
+  .hero p.lede{
+    font-size:17px;
+    color:var(--ink-dim);
+    max-width:52ch;
+    margin:0 0 30px;
+  }
+  .hero-ctas{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 20px;
+    border-radius:8px;
+    font-size:14px;
+    text-decoration:none;
+    font-weight:500;
+    border:1px solid var(--line-strong);
+    color:var(--ink);
+    transition:background-color .15s ease, border-color .15s ease;
+  }
+  .btn.primary{
+    background:var(--amber);
+    color:#241705;
+    border-color:var(--amber);
+  }
+  .btn.primary:hover{background:#f3ba6b;}
+  .btn.ghost:hover{border-color:var(--ink-dim);background:var(--panel);}
+
+  .portrait-block{
+    justify-self:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .portrait-frame{
+    position:relative;
+    width:270px;
+    height:270px;
+  }
+  .portrait-photo{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:70%;
+    height:70%;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:center 20%;
+    filter:saturate(0.92) contrast(1.02);
+    display:block;
+    z-index:2;
+  }
+  .portrait-orbit{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+  }
+  .orbit-spin{
+    transform-origin:135px 135px;
+    animation:orbit-spin 30s linear infinite;
+  }
+  @keyframes orbit-spin{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .orbit-spin{animation:none;}
+  }
+  .portrait-cap{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    margin-top:14px;
+    text-align:center;
+    letter-spacing:0.04em;
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:80px 0;}
+  section.alt{background:var(--bg-deep);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:40px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{font-size:28px;}
+  .section-head.compact{margin-bottom:26px;}
+  .section-head.compact h2{font-size:24px;}
+  .section-head .num{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    color:var(--ink-faint);
+    font-size:13px;
+  }
+
+  /* ---------- about ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns:0.9fr 1.4fr;
+    gap:48px;
+  }
+  .about-grid h2{font-size:22px;margin-bottom:18px;}
+  .about-grid p{color:var(--ink-dim);font-size:16px;margin:0 0 16px;}
+  .about-grid p:last-child{margin-bottom:0;}
+  .about-stat{
+    border-top:1px solid var(--line);
+    padding-top:14px;
+    margin-top:14px;
+  }
+  .about-stat:first-child{border-top:none;padding-top:0;margin-top:0;}
+  .about-stat .k{font-family:'IBM Plex Mono',ui-monospace,monospace;color:var(--teal);font-size:12.5px;letter-spacing:0.05em;text-transform:uppercase;}
+  .about-stat .v{font-size:15px;margin-top:4px;color:var(--ink);}
+  .about-stat .footer-links{margin-top:6px;}
+
+  /* ---------- research cards ---------- */
+  .research-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .research-item{
+    background:var(--panel);
+    padding:32px;
+    display:grid;
+    grid-template-columns:120px 1fr;
+    gap:28px;
+  }
+  .research-item .tag{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:11.5px;
+    color:var(--amber);
+    letter-spacing:0.04em;
+  }
+  .research-item .period{
+    display:block;
+    color:var(--ink-faint);
+    font-size:11.5px;
+    margin-top:6px;
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  .research-item h3{font-size:20px;margin-bottom:10px;}
+  .research-item p{color:var(--ink-dim);margin:0 0 14px;font-size:15px;}
+  .research-item .meta{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--ink-faint);
+  }
+  .research-item .meta a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal-dim);}
+  .research-item .meta a:hover{border-color:var(--teal);}
+
+  /* ---------- publications ---------- */
+  .pub{
+    padding:22px 0;
+    border-top:1px solid var(--line);
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:20px;
+    align-items:start;
+  }
+  .pub:first-of-type{border-top:none;}
+  .pub h4{font-size:16px;font-weight:500;margin:0 0 6px;font-family:'Inter',system-ui,sans-serif;}
+  .pub .authors{color:var(--ink-dim);font-size:14px;margin-bottom:6px;}
+  .pub .authors .me{color:var(--ink);font-weight:500;}
+  .pub .venue{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12.5px;color:var(--ink-faint);}
+  .pub .venue a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid var(--line-strong);}
+  .pub .venue a:hover{color:var(--ink);border-color:var(--ink-dim);}
+  .pub .status{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:11px;
+    color:var(--teal);
+    border:1px solid var(--teal-dim);
+    padding:4px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+    height:fit-content;
+    text-decoration:none;
+  }
+  .pub .status:hover{border-color:var(--teal);}
+
+  /* ---------- timeline ---------- */
+  .timeline{position:relative;padding-left:28px;}
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:5px;top:6px;bottom:6px;
+    width:1px;
+    background:var(--line-strong);
+  }
+  .tl-item{position:relative;padding-bottom:36px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:"";
+    position:absolute;
+    left:-28px;
+    top:5px;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--amber);
+  }
+  .tl-item .dates{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .tl-item .upcoming{
+    margin-left:8px;
+    padding:1px 8px;
+    border:1px solid var(--amber-dim);
+    border-radius:20px;
+    color:var(--amber);
+    font-size:11px;
+  }
+  .tl-item h4{font-family:'Inter',system-ui,sans-serif;font-size:16px;font-weight:500;margin:0 0 3px;}
+  .tl-item h4 a{text-decoration:none;border-bottom:1px solid var(--line-strong);}
+  .tl-item h4 a:hover{border-color:var(--ink-dim);}
+  .tl-item .org{color:var(--teal);font-size:14px;margin-bottom:8px;}
+  .tl-item .org a{text-decoration:none;border-bottom:1px solid var(--teal-dim);}
+  .tl-item .org a:hover{border-color:var(--teal);}
+  .tl-item p{color:var(--ink-dim);font-size:14.5px;margin:0;max-width:62ch;}
+
+  .tl-item.has-photo{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    max-width:760px;
+  }
+  .tl-item.has-photo > div{
+    flex:1 1 auto;
+    min-width:0;
+  }
+  .tl-photo{
+    width:110px;
+    height:110px;
+    border-radius:8px;
+    object-fit:cover;
+    flex:0 0 110px;
+  }
+    .tl-media{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex:none;
+  }
+  .tl-poster{
+    display:block;
+    flex:none;
+    line-height:0;
+    border-radius:4px;
+    transition:transform .15s ease;
+  }
+  .tl-poster img{
+    display:block;
+    width:auto;
+    height:110px;
+    border-radius:4px;
+    border:1px solid var(--line-strong);
+  }
+  .tl-poster:hover{transform:translateY(-2px);}
+  @media (prefers-reduced-motion: reduce){ .tl-poster{transition:none;} .tl-poster:hover{transform:none;} }
+
+  /* ---------- education / teaching ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;}
+  .edu-item{margin-bottom:24px;}
+  .edu-item:last-child{margin-bottom:0;}
+  .edu-item .dates{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;color:var(--ink-faint);}
+  .edu-item h4{font-family:'Inter',system-ui,sans-serif;font-size:15.5px;font-weight:500;margin:4px 0 2px;}
+  .edu-item .org{color:var(--ink-dim);font-size:14px;}
+  .edu-item .detail{color:var(--ink-faint);font-size:13.5px;margin-top:4px;}
+  .course-list{list-style:none;margin:6px 0 0;padding:0;}
+  .course-list li{display:flex;gap:10px;color:var(--ink-faint);font-size:13.5px;margin-top:4px;}
+  .dot{color:var(--amber);font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;flex:none;}
+
+  .honours{margin-top:32px;padding-top:28px;border-top:1px solid var(--line);}
+  .honours .h-item{display:flex;gap:14px;margin-bottom:14px;font-size:14.5px;color:var(--ink-dim);}
+  .honours .h-item:last-child{margin-bottom:0;}
+
+  /* ---------- footer ---------- */
+  footer{
+    padding:64px 0 48px;
+    border-top:1px solid var(--line);
+  }
+  .footer-grid{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:32px;
+  }
+  footer h3{font-size:24px;margin-bottom:10px;}
+  footer p{color:var(--ink-dim);font-size:14.5px;margin:0;}
+  .footer-links{display:flex;gap:10px 14px;flex-wrap:wrap;}
+  .footer-links a{
+    text-decoration:none;
+    color:var(--ink);
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    padding:9px 16px;
+    font-size:13.5px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .footer-links a:hover{border-color:var(--amber);color:var(--amber);}
+  .footer-bottom{
+    margin-top:44px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    font-size:12.5px;
+    color:var(--ink-faint);
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  .inline-link{
+    color:var(--teal);
+    text-decoration:none;
+    border-bottom:1px solid var(--teal-dim);
+  }
+  .inline-link:hover{border-color:var(--teal);}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:980px){
+    .navlinks{display:none;}
+    .navtoggle{display:inline-flex;}
+  }
+  @media (max-width:860px){
+    .hero{padding:56px 0 64px;}
+    .hero-inner{grid-template-columns:1fr;gap:36px;}
+    .portrait-block{order:-1;}
+    .portrait-frame{width:220px;height:220px;}
+    .about-grid{grid-template-columns:1fr;}
+    .split{grid-template-columns:1fr;gap:48px;}
+    .research-item{grid-template-columns:1fr;gap:10px;padding:26px 22px;}
+    .hero h1{font-size:34px;}
+    section{padding:64px 0;}
+  }
+  @media (max-width:600px){
+    .wrap{padding:0 20px;}
+    .tl-item.has-photo{flex-direction:column;align-items:flex-start;gap:16px;}
+    .pub{grid-template-columns:1fr;gap:12px;}
+    .pub .status{justify-self:start;}
+  }
+</style>
+</head>
+<body>
+
+
+<header class="site">
+  <nav class="wrap" aria-label="Main">
+    <a class="brand" href="#top">Mareike Berkner</a>
+    <div class="navlinks">
+      <a href="#research">Research</a>
+      <a href="#publications">Publications</a>
+      <a href="#experience">Experience</a>
+      <a href="#talks">Talks</a>
+      <a href="#outreach">Outreach</a>
+      <a href="#education">Education &amp; Teaching</a>
+      <a href="#contact">Contact</a>
+      <a class="ext" href="https://www.mw-atlas.eu" target="_blank" rel="noopener">MW-Atlas ↗</a>
+    </div>
+    <button class="navtoggle" type="button" aria-controls="drawer" aria-expanded="false">
+      <span class="bars" aria-hidden="true"><span></span></span>
+      Menu
+    </button>
+  </nav>
+</header>
+
+<div class="scrim" data-close-drawer></div>
+<aside class="drawer" id="drawer" aria-label="Site navigation" aria-hidden="true" inert>
+  <div class="drawer-head">
+    <a class="brand" href="#top" data-close-drawer>Mareike Berkner</a>
+    <button class="drawer-close" type="button" aria-label="Close menu" data-close-drawer>&times;</button>
+  </div>
+  <nav class="drawer-nav" aria-label="Sections">
+    <a href="#about" data-close-drawer>About</a>
+    <a href="#research" data-close-drawer>Research</a>
+    <a href="#publications" data-close-drawer>Publications</a>
+    <a href="#experience" data-close-drawer>Experience</a>
+    <a href="#talks" data-close-drawer>Talks</a>
+    <a href="#outreach" data-close-drawer>Outreach</a>
+    <a href="#education" data-close-drawer>Education</a>
+    <a href="#teaching" data-close-drawer>Teaching &amp; Supervision</a>
+    <a href="#contact" data-close-drawer>Contact</a>
+  </nav>
+  <div class="drawer-foot">
+    <div class="footer-links">
+      <a href="mailto:mareike.berkner@rwth-aachen.de">Email</a>
+      <a href="https://www.mw-atlas.eu" target="_blank" rel="noopener">MW-Atlas ↗</a>
+      <a href="https://orcid.org/0009-0004-9070-2184" target="_blank" rel="noopener">ORCID ↗</a>
+    </div>
+  </div>
+</aside>
+
+<main id="top">
+
+  <section class="hero">
+    <svg class="hero-grid" viewBox="0 0 1080 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke="#e8a852" stroke-opacity="0.16" fill="none">
+        <ellipse cx="540" cy="480" rx="900" ry="230"/>
+        <ellipse cx="540" cy="480" rx="700" ry="180"/>
+        <ellipse cx="540" cy="480" rx="500" ry="130"/>
+      </g>
+      <g stroke="#57bfae" stroke-opacity="0.14" fill="none" stroke-dasharray="2 6">
+        <circle cx="760" cy="120" r="40"/>
+        <circle cx="760" cy="120" r="80"/>
+        <circle cx="760" cy="120" r="120"/>
+        <circle cx="760" cy="120" r="160"/>
+      </g>
+      <g fill="#eef0f6" fill-opacity="0.5">
+        <circle cx="760" cy="120" r="3"/>
+        <circle cx="120" cy="80" r="2"/>
+        <circle cx="200" cy="180" r="1.5"/>
+        <circle cx="320" cy="60" r="1.5"/>
+        <circle cx="900" cy="60" r="2"/>
+        <circle cx="980" cy="200" r="1.5"/>
+        <circle cx="60" cy="260" r="2"/>
+        <circle cx="440" cy="40" r="1.5"/>
+        <circle cx="620" cy="30" r="1.5"/>
+        <circle cx="180" cy="340" r="1.5"/>
+        <circle cx="850" cy="300" r="1.5"/>
+        <circle cx="1000" cy="340" r="2"/>
+      </g>
+    </svg>
+    <div class="wrap hero-inner">
+      <div>
+        <span class="eyebrow">PhD researcher &middot; astroparticle physics</span>
+        <h1>Mapping the Milky Way's cosmic rays in <em>three dimensions</em></h1>
+        <p class="lede">Cosmic rays shape the Milky Way, and the Milky Way shapes them. As a PhD student at RWTH Aachen, 
+                      I am building a three-dimensional map of cosmic rays and their sources from γ-ray and gas data.</p>
+        <div class="hero-ctas">
+          <a class="btn primary" href="#research">View research</a>
+          <a class="btn ghost" href="#contact">Get in touch</a>
+          <a class="btn ghost" href="https://orcid.org/0009-0004-9070-2184" target="_blank" rel="noopener">ORCID ↗</a>
+        </div>
+      </div>
+
+      <div class="portrait-block">
+        <div class="portrait-frame">
+          <img class="portrait-photo" src="portrait.jpg" alt="Portrait of Mareike Berkner">
+          <svg class="portrait-orbit" viewBox="0 0 270 270" aria-hidden="true">
+            <defs>
+              <path id="capPath" d="M135,135 m-125,0 a125,125 0 1,0 250,0 a125,125 0 1,0 -250,0"/>
+            </defs>
+            <circle cx="135" cy="135" r="125" fill="none" stroke="#8a6a3a" stroke-opacity="0.4" stroke-dasharray="1 5"/>
+            <g class="orbit-spin">
+              <text font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#a6adc4">
+                <textPath href="#capPath" startOffset="0" textLength="780" lengthAdjust="spacing">Cosmic Rays &#183; ISM &#183; Molecular Clouds &#183; Bayesian Inference &#183; Gaussian Processes &#183;</textPath>
+              </text>
+            </g>
+          </svg>
+        </div>
+        <div class="portrait-cap">PhD student &middot; RWTH Aachen University</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap about-grid">
+      <div>
+        <div class="about-stat">
+          <div class="k">Affiliation</div>
+          <div class="v">Institute for Theoretical Particle Physics and Cosmology (TTK), RWTH Aachen University</div>
+        </div>
+        <div class="about-stat">
+          <div class="k">Collaboration</div>
+          <div class="v">MW-Atlas</div>
+        </div>
+        <div class="about-stat">
+          <div class="k">Supervisor</div>
+          <div class="v">Prof. Philipp Mertsch</div>
+        </div>
+        <div class="about-stat">
+          <div class="k">Stage</div>
+          <div class="v">PhD student since 2025</div>
+        </div>
+        <div class="about-stat">
+          <div class="k">Links</div>
+          <div class="footer-links">
+            <a href="https://www.mw-atlas.eu" target="_blank" rel="noopener">MW-Atlas ↗</a>
+            <a href="https://ui.adsabs.harvard.edu/search/q=author%3A%22Berkner%2C%20Mareike%22&amp;sort=date%20desc" target="_blank" rel="noopener">NASA ADS ↗</a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h2>About my work</h2>
+        <p>Cosmic rays are a key messenger of high-energy astrophysics and an important driver of feedback in the 
+          interstellar medium: they couple its smallest and largest scales, from the ionisation and chemistry of dense 
+          clouds to the driving of galactic outflows. In molecular clouds they can dominate the
+            ionisation budget entirely. At the same time, where cosmic rays go depends on the gas and magnetic fields 
+            they travel through. I am interested in this two-way relationship: how cosmic rays shape the Milky Way, 
+            and how the Milky Way shapes them.</p>
+        <p>I approached this question from the dense end. As a student, I studied how the correlation between discrete 
+          sources and molecular clouds affects <a class="inline-link" href="#paper-ionisation">ionisation by MeV cosmic 
+            rays</a>; my master's thesis then turned to the sources themselves, modelling shock acceleration in 
+            star-cluster wind bubbles. My PhD in Prof. Philipp Mertsch's group brings both ends together:
+             reconstructing where cosmic rays and their sources are, in three dimensions. Within the 
+             <a class="inline-link" href="https://www.mw-atlas.eu" target="_blank" rel="noopener">MW-Atlas</a> 
+             collaboration, I also contributed to a <a class="inline-link" href="#paper-HI">velocity-resolved 3D map 
+              of local atomic hydrogen</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="research" class="alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Research</h2>
+      </div>
+      <div class="research-list">
+
+        <div class="research-item">
+          <div>
+            <span class="tag">PhD project</span>
+            <span class="period">since October 2025</span>
+          </div>
+          <div>
+            <h3>Three-dimensional reconstruction of cosmic-ray sources and density</h3>
+            <p>Reconstructing a data-driven, three-dimensional map of the local cosmic-ray density and of the underlying 
+              distribution of galactic cosmic-ray sources, going beyond the parametric distributions assumed in 
+              many propagation models. Inferring both from Fermi-LAT γ-ray data combined with 3D maps of the interstellar gas, 
+              to provide the cosmic-ray input needed for more realistic studies of the physics inside the interstellar medium.</p>
+
+            <div class="meta">
+              <span>MW-Atlas collaboration</span>
+              <a href="https://www.mw-atlas.eu" target="_blank" rel="noopener">mw-atlas.eu ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="research-item">
+          <div>
+            <span class="tag">Prior project</span>
+            <span class="period">2023 – 2025</span>
+          </div>
+          <div>
+            <h3>Cosmic-ray ionisation of molecular clouds</h3>
+            <p>Studied how the spatio-temporal correlation between discrete cosmic-ray sources and molecular clouds shapes the ionisation rate from MeV cosmic rays — the dominant ionising agent in dense, partially shielded gas.</p>
+            <div class="meta">
+              <span>with H. Jacobs, P. Mertsch, V. H. M. Phan et al.</span>
+              <a href="https://pos.sissa.it/501/092" target="_blank" rel="noopener">ICRC 2025 contribution ↗</a> <span>presented by P. Mertsch</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="research-item">
+          <div>
+            <span class="tag">Master's thesis</span>
+            <span class="period">2024 – 2025</span>
+          </div>
+          <div>
+            <h3>Shock acceleration in star-cluster wind bubbles</h3>
+            <p>Investigated young massive star clusters as potential sources of galactic cosmic rays, modelling diffusive shock acceleration at the termination shock. Used finite-difference methods to solve the transport equation governing cosmic-ray acceleration, aiming to understand the resulting particle energy spectra and spatial distribution.</p>
+            <div class="meta">
+              <span>Supervisor: Prof. Philipp Mertsch</span>
+              <span>TTK, RWTH Aachen</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="publications">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Publications</h2>
+      </div>
+
+      <div class="pub" id="paper-HI">
+        <div>
+          <h4>Milky Way Atlas: A radial-velocity-resolved, three-dimensional map of H&nbsp;I within 1.25&nbsp;kpc</h4>
+          <div class="authors">Lewis McCallum, Laurin Söding, <span class="me">Mareike Berkner</span>, Philipp Frank, Matteo Guardiani, Jakob Roth, Juan D. Soler, Robert Benjamin, Torsten Enßlin, Philipp Mertsch, Konstantinos Tassis and Vasiliki Pavlidou</div>
+          <div class="venue">MNRAS 550, stag1303 (2026) &middot; <a href="https://doi.org/10.1093/mnras/stag1303" target="_blank" rel="noopener">doi:10.1093/mnras/stag1303</a></div>
+        </div>
+        <a class="status" href="https://ui.adsabs.harvard.edu/abs/2026arXiv260707451M/abstract" target="_blank" rel="noopener">NASA ADS ↗</a>
+      </div>
+
+      <div class="pub" id="paper-ionisation">
+        <div>
+          <h4>Cosmic-ray induced ionisation and spatio-temporal correlations between supernova remnants and molecular clouds</h4>
+          <div class="authors"><span class="me">Mareike Berkner</span>, Dieter Breitschwerdt, Stefano Gabici, Matthias Hübl, Hanno Jacobs, Philipp Mertsch, Mattia Pacicco, Enrico Peretti, Giada Peron, Sruthiranjani Ravikularaman, Martin M. Schulreich and Vo Hong Minh Phan</div>
+          <div class="venue">PoS ICRC2025 (2025) 092 &middot; 39th International Cosmic Ray Conference, Geneva &middot; Contribution: code and analysis</div>
+        </div>
+        <a class="status" href="https://pos.sissa.it/501/092" target="_blank" rel="noopener">PoS ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" class="alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Experience</h2>
+      </div>
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="dates">Since 10/2025</div>
+          <h4>PhD student</h4>
+          <div class="org">MW-Atlas collaboration &middot; TTK, RWTH Aachen University</div>
+          <p>Reconstructing the 3D distribution of galactic cosmic-ray sources and the local cosmic-ray density.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">11/2023 – 09/2024</div>
+          <h4>Student assistant</h4>
+          <div class="org">Prof. Philipp Mertsch &middot; TTK, RWTH Aachen University</div>
+          <p>Investigated how cloud–source correlations affect the ionisation rate of molecular clouds, using stochastic models of galactic low-energy cosmic rays. Built Monte Carlo simulations in C++ and ran them on a high-performance cluster.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">04/2023 – 07/2023</div>
+          <h4>Research internship</h4>
+          <div class="org">Dmitri Semikoz &middot; Laboratoire Astroparticule et Cosmologie, Université Paris Cité</div>
+          <p>Modelled diffuse gamma rays, focusing on mapping propagated gamma rays and resolving discretisation and binning issues in the simulations. Optimised code for a high-performance cluster.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">2021 – 2022</div>
+          <h4>Student assistant</h4>
+          <div class="org">Institute of Physics IIIA, CMS group &middot; RWTH Aachen University</div>
+          <p>Measured and analysed the gas gain of gas electron multipliers (GEMs) and helped maintain the detector.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="talks">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Talks</h2>
+      </div>
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="dates">Nov 2026 <span class="upcoming">upcoming</span></div>
+          <h4>mw-atlas: Towards a 3D Map of Galactic Cosmic-Ray Sources via Differentiable Transport Modelling</h4>
+          <div class="org">Talk &middot; <a href="https://indico.dzastro.de/event/15/" target="_blank" rel="noopener">IFT-2026, Görlitz&nbsp;↗</a></div>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">Jul 2026</div>
+          <h4>mw-atlas: Inferring the 3D Galactic Cosmic Ray (Source) Density of our Milky Way</h4>
+          <div class="org">Talk &middot; Les Houches Summer School 2026</div>
+          <p>Presenting the methodology and mock tests of a Bayesian reconstruction of the 3D cosmic-ray source density in the Milky Way.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">Mar 2026</div>
+          <h4><a href="https://www.dpg-verhandlungen.de/year/2026/conference/erlangen/part/t/session/62/contribution/5" target="_blank" rel="noopener">mw-atlas: Inferring the 3D Galactic cosmic ray density of our Milky Way ↗</a></h4>
+          <div class="org">Conference talk &middot; DPG Spring Meeting Erlangen, Session T 62: Cosmic Rays III</div>
+          <p>Presenting the methodology of a Bayesian reconstruction of the 3D cosmic-ray source density in the Milky Way, with an outlook on future work.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">Feb 2026</div>
+          <h4>Galactic Cosmic Ray Sources</h4>
+          <div class="org">Seminar talk &middot; Institute seminar, LAPth, Annecy</div>
+          <p>An overview of my research, from cosmic-ray ionisation rates in molecular clouds, through shock acceleration in star-cluster wind bubbles (master's thesis), to the Bayesian reconstruction of the 3D cosmic-ray (source) density in my PhD.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">Sep 2025</div>
+          <h4><a href="https://www.particle-theory.rwth-aachen.de/go/id/bmminf" target="_blank" rel="noopener">Shock Acceleration in Star Cluster Wind Bubbles ↗</a></h4>
+          <div class="org">Master's thesis defence &middot; Institute for Theoretical Particle Physics and Cosmology, RWTH Aachen</div>
+          <p>Studying the acceleration of cosmic rays at shocks in the wind bubbles blown by massive star clusters.</p>
+        </div>
+
+        <div class="tl-item">
+          <div class="dates">Apr 2025</div>
+          <h4><a href="https://www.dpg-verhandlungen.de/year/2025/conference/goettingen/part/t/session/80/contribution/5" target="_blank" rel="noopener">Cosmic-ray induced ionisation and spatio-temporal correlations between supernova remnants and molecular clouds ↗</a></h4>
+          <div class="org">Conference talk &middot; DPG Spring Meeting Göttingen, Session T 80: Cosmic Rays IV</div>
+          <p>Addressing the cosmic-ray ionisation puzzle by modelling spatial and temporal correlations between supernova remnants and molecular clouds, and comparing the predicted ionisation rates to data.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="outreach" class="alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Outreach</h2>
+      </div>
+      <div class="timeline">
+
+        <div class="tl-item has-photo">
+          <div>
+            <div class="dates">2026</div>
+            <h4><a href="https://ppt.physik.rwth-aachen.de" target="_blank" rel="noopener">Physik-Projekt-Tage Aachen 2026 ↗</a></h4>
+            <div class="org">Spokesperson &middot; Head of the organising team</div>
+            <p>Organising a four-day event for female secondary-school students to promote interest in physics.</p>
+          </div>
+          <div class="tl-media">
+            <img class="tl-photo" src="PPT.jpg" alt="Participants at the Physik-Projekt-Tage Aachen">
+            <a class="tl-poster" href="PPT-Aachen-2026-Poster.pdf" target="_blank" rel="noopener" title="Open the full poster (PDF)">
+              <img src="PPT-poster.jpg" width="320" height="453" alt="Poster for the Physik-Projekt-Tage Aachen, 9–12 September 2026">
+            </a>
+          </div>        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="wrap split">
+      <div>
+        <div class="section-head compact">
+          <h2>Education</h2>
+        </div>
+
+        <div class="edu-item">
+          <div class="dates">2022 – 2025</div>
+          <h4>M.Sc. Physics</h4>
+          <div class="org">RWTH Aachen University</div>
+          <div class="detail">Track: quantum field theory &amp; gauge theories</div>
+          <div class="detail">Thesis: Shock acceleration in star-cluster wind bubbles, supervised by Prof. Philipp Mertsch</div>
+          <div class="detail">Erasmus exchange: Université Paris-Saclay, 2022 – 2023</div>
+        </div>
+
+        <div class="edu-item">
+          <div class="dates">2019 – 2022</div>
+          <h4>B.Sc. Physics</h4>
+          <div class="org">RWTH Aachen University</div>
+          <div class="detail">Thesis: Mass determination with the AMS-02 detector on the ISS, supervised by Prof. Dr. Stefan Schael</div>
+        </div>
+
+        <div class="honours">
+          <div class="h-item"><span class="dot">＊</span><span>Scholarship holder, German National Academic Foundation (Studienstiftung des deutschen Volkes), 2020 – 2025</span></div>
+          <div class="h-item"><span class="dot">＊</span><span>Dean's List, RWTH Aachen University — top 5% of the year, 2019 – 2020</span></div>
+        </div>
+      </div>
+
+      <div id="teaching">
+        <div class="section-head compact">
+          <h2>Teaching &amp; Supervision</h2>
+        </div>
+
+        <div class="edu-item">
+          <div class="dates">Since 2026</div>
+          <h4>Co-supervisor, Master's thesis</h4>
+          <div class="org">RWTH Aachen University</div>
+          <div class="detail">Topic: interstellar UV field from PAH emission (WISE) with NIFTy and GraphGP</div>
+        </div>
+
+        <div class="edu-item">
+          <div class="dates">2024 – 2027</div>
+          <h4>Teaching assistant</h4>
+          <div class="org">RWTH Aachen University</div>
+          <ul class="course-list">
+            <li><span class="dot">＊</span><span>Winter 2026/27: Mathematical Methods of Physics I (upcoming)</span></li>
+            <li><span class="dot">＊</span><span>Summer 2026: Neutron Stars, Black Holes and Ultra-High-Energy Cosmic Rays (Master's course)</span></li>
+            <li><span class="dot">＊</span><span>Winter 2025/26: Theoretical Physics IV: Statistical Physics and Thermodynamics</span></li>
+            <li><span class="dot">＊</span><span>Winter 2024/25: Theoretical Physics I: Classical Mechanics</span></li>
+          </ul>
+          <div class="detail">Weekly exercise classes and grading of problem sets</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h3>Contact</h3>
+        <p>Reach me by email, or find my work through the links below. I am happy to discuss potential collaborations!</p>
+      </div>
+      <div class="footer-links">
+        <a href="mailto:mareike.berkner@rwth-aachen.de">Email</a>
+        <a href="https://www.mw-atlas.eu" target="_blank" rel="noopener">MW-Atlas ↗</a>
+        <a href="https://www.physik.rwth-aachen.de/cms/physik/die-fachgruppe/institute-und-lehrstuehle/~bbxnga/mitarbeiter-campus-/?gguid=PER-RHFBG5S&amp;allou=1" target="_blank" rel="noopener">RWTH profile ↗</a>
+        <a href="https://github.com/mareikeberkner" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://orcid.org/0009-0004-9070-2184" target="_blank" rel="noopener">ORCID ↗</a>
+        <a href="https://inspirehep.net/authors/3068242" target="_blank" rel="noopener">INSPIRE-HEP ↗</a>
+        <a href="https://ui.adsabs.harvard.edu/search/q=author%3A%22Berkner%2C%20Mareike%22&amp;sort=date%20desc" target="_blank" rel="noopener">NASA ADS ↗</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Mareike Berkner &middot; TTK, RWTH Aachen University</span>
+      <span>Last updated: September 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var body = document.body;
+  var toggle = document.querySelector('.navtoggle');
+  var drawer = document.getElementById('drawer');
+  var lastFocus = null;
+
+  function openDrawer(){
+    lastFocus = document.activeElement;
+    body.classList.add('drawer-open');
+    drawer.removeAttribute('inert');
+    drawer.setAttribute('aria-hidden','false');
+    toggle.setAttribute('aria-expanded','true');
+    var first = drawer.querySelector('.drawer-close');
+    if(first) first.focus();
+  }
+  function closeDrawer(restoreFocus){
+    if(!body.classList.contains('drawer-open')) return;
+    body.classList.remove('drawer-open');
+    drawer.setAttribute('inert','');
+    drawer.setAttribute('aria-hidden','true');
+    toggle.setAttribute('aria-expanded','false');
+    if(restoreFocus !== false && lastFocus) lastFocus.focus();
+  }
+
+  toggle.addEventListener('click', function(){
+    body.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+  });
+  document.querySelectorAll('[data-close-drawer]').forEach(function(el){
+    el.addEventListener('click', function(){ closeDrawer(el.tagName !== 'A'); });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeDrawer();
+    /* keep Tab inside the open drawer */
+    if(e.key === 'Tab' && body.classList.contains('drawer-open')){
+      var f = drawer.querySelectorAll('a,button');
+      var first = f[0], last = f[f.length-1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  });
+  /* close the drawer if the window is widened past the mobile breakpoint */
+  window.matchMedia('(min-width:981px)').addEventListener('change', function(m){
+    if(m.matches) closeDrawer(false);
+  });
+
+  /* highlight the section currently in view, in both navs */
+  var links = document.querySelectorAll('.navlinks a[href^="#"], .drawer-nav a[href^="#"]');
+  var ids = Array.prototype.map.call(links, function(a){ return a.getAttribute('href').slice(1); });
+  var sections = ids.filter(function(v,i){ return ids.indexOf(v) === i; })
+                    .map(function(id){ return document.getElementById(id); })
+                    .filter(Boolean);
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        links.forEach(function(a){
+          a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id);
+        });
+      });
+    }, {rootMargin:'-40% 0px -55% 0px'});
+    sections.forEach(function(s){ io.observe(s); });
+  }
+})();
+</script>
+
+</body>
+</html>
